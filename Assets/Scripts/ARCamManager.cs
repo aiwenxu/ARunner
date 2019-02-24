@@ -35,16 +35,8 @@ public class ARCamManager : MonoBehaviour {
             config.getPointCloudData = getPointCloud;
             config.enableLightEstimation = enableLightEstimation;
             config.enableAutoFocus = enableAutoFocus;
-            config.maximumNumberOfTrackedImages = maximumNumberOfTrackedImages;
+            config.maximumNumberOfTrackedImages = 0;
             config.environmentTexturing = environmentTexturing;
-            if (detectionImages != null)
-                config.referenceImagesGroupName = detectionImages.resourceGroupName;
-
-			if (detectionObjects != null) 
-			{
-				config.referenceObjectsGroupName = "";  //lets not read from XCode asset catalog right now
-				config.dynamicReferenceObjectsPtr = m_session.CreateNativeReferenceObjectsSet(detectionObjects.LoadReferenceObjectsInSet());
-			}
 
             return config;
         }
@@ -126,12 +118,24 @@ public class ARCamManager : MonoBehaviour {
     public void StopPlaneDetection()
     {
         ARKitWorldTrackingSessionConfiguration newConfig = new ARKitWorldTrackingSessionConfiguration();
+
         newConfig.planeDetection = UnityARPlaneDetection.None;
         newConfig.alignment = startAlignment;
         newConfig.getPointCloudData = false;
         newConfig.enableLightEstimation = true;
         newConfig.enableAutoFocus = enableAutoFocus;
         newConfig.environmentTexturing = environmentTexturing;
+
+        newConfig.maximumNumberOfTrackedImages = maximumNumberOfTrackedImages;
+        if (detectionImages != null)
+            newConfig.referenceImagesGroupName = detectionImages.resourceGroupName;
+
+        if (detectionObjects != null)
+        {
+            newConfig.referenceObjectsGroupName = "";  //lets not read from XCode asset catalog right now
+            newConfig.dynamicReferenceObjectsPtr = m_session.CreateNativeReferenceObjectsSet(detectionObjects.LoadReferenceObjectsInSet());
+        }
+
         m_session.RunWithConfig(newConfig);
     }
 
