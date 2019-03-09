@@ -24,6 +24,11 @@ public class PlaneGenerator : MonoBehaviour
     private bool planeDetectionStopped = false;
     private bool gameCharacterPlaced = false;
 
+    public GameObject gamePlaneParent;
+    public GameObject gamePlane;
+    public GameObject gamePlaneOrigin;
+    private ARPlaneAnchor selectedPlaneAnchor;
+    
     // Use this for initialization
     void Start () {
         unityARAnchorManager = new MyARAnchorManager();
@@ -134,10 +139,9 @@ public class PlaneGenerator : MonoBehaviour
         Debug.Log(keysInfo);
         if (unityARAnchorManager.planeAnchorMap.ContainsKey(planeID))
         {
-            ARPlaneAnchor planeAnchorToKeep = unityARAnchorManager.planeAnchorMap[planeID].planeAnchor;
+            selectedPlaneAnchor = unityARAnchorManager.planeAnchorMap[planeID].planeAnchor;
             unityARAnchorManager.Destroy();
-            unityARAnchorManager = new MyARAnchorManager();
-            unityARAnchorManager.AddAnchor(planeAnchorToKeep);
+            PlaceGamePlane();
         }
         else
         {
@@ -155,34 +159,55 @@ public class PlaneGenerator : MonoBehaviour
     {
         gameCharacterPlaced = true;
     }
-    
 
-    public void VisualizeCenter()
+    //public void VisualizeCenter()
+    //{
+    //    IEnumerable<ARPlaneAnchorGameObject> arpags = unityARAnchorManager.GetCurrentPlaneAnchors();
+    //    foreach (var planeAnchorGO in arpags)
+    //    {
+    //        ARPlaneAnchor ap = planeAnchorGO.planeAnchor;
+    //        GameObject plane = planeAnchorGO.gameObject;
+    //        if (plane.transform.childCount == 1)
+    //        {
+    //            GameObject centerGO = GameObject.Instantiate(visPrefab);
+    //            centerGO.transform.parent = planeAnchorGO.gameObject.transform;
+    //            centerGO.transform.localPosition = new Vector3(ap.center.x, ap.center.y, -ap.center.z);
+    //        }
+    //        else
+    //        {
+    //            Transform childOfPlane = plane.transform.GetChild(1);
+    //            childOfPlane.localPosition = new Vector3(ap.center.x, ap.center.y, -ap.center.z);
+    //        }
+    //    }
+    //}
+
+    public void PlaceGamePlane()
     {
-        IEnumerable<ARPlaneAnchorGameObject> arpags = unityARAnchorManager.GetCurrentPlaneAnchors();
-        foreach (var planeAnchorGO in arpags)
-        {
-            ARPlaneAnchor ap = planeAnchorGO.planeAnchor;
-            GameObject plane = planeAnchorGO.gameObject;
-            if (plane.transform.childCount == 1)
-            {
-                GameObject centerGO = GameObject.Instantiate(visPrefab);
-                centerGO.transform.parent = planeAnchorGO.gameObject.transform;
-                centerGO.transform.localPosition = new Vector3(ap.center.x, ap.center.y, -ap.center.z);
-            }
-            else
-            {
-                Transform childOfPlane = plane.transform.GetChild(1);
-                childOfPlane.localPosition = new Vector3(ap.center.x, ap.center.y, -ap.center.z);
-            }
+        gamePlaneParent.transform.position = UnityARMatrixOps.GetPosition(selectedPlaneAnchor.transform);
+        gamePlaneParent.transform.rotation = UnityARMatrixOps.GetRotation(selectedPlaneAnchor.transform);
 
-        }
+        gamePlaneOrigin.transform.localPosition = new Vector3(selectedPlaneAnchor.center.x, selectedPlaneAnchor.center.y, -selectedPlaneAnchor.center.z);
+
+        gamePlane.transform.localPosition = new Vector3(selectedPlaneAnchor.center.x, selectedPlaneAnchor.center.y, -selectedPlaneAnchor.center.z);
+        //gamePlane.transform.localScale = new Vector3(selectedPlaneAnchor.extent.x * 0.1f, gamePlane.transform.localScale.y, selectedPlaneAnchor.extent.z * 0.1f);
+        //gamePlane.SetActive(true);
+        gamePlane.transform.localScale = new Vector3(selectedPlaneAnchor.extent.x, 0.005f, selectedPlaneAnchor.extent.z);
+
+
+        //Mesh planeMesh = gamePlane.GetComponent<MeshFilter>().mesh;
+
+        //Debug.Log(planeMesh.bounds.extents.ToString("F5"));
+
+        Debug.Log(gamePlane.GetComponent<Collider>().bounds.extents.ToString("F5"));
+
+        m_HitTransform.parent = gamePlaneOrigin.transform;
+
     }
 
-    public void DisplayHitInfo()
-    {
-        debugTextBox.text = debugInfo;
-    }
+    //public void DisplayHitInfo()
+    //{
+    //    debugTextBox.text = debugInfo;
+    //}
 
 
 }

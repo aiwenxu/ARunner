@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   imageName: crying
   imageTexture: {fileID: 2800000, guid: 45fed8123184549ca9962935da8f5934, type: 3}
-  physicalSize: 0.117
+  physicalSize: 0.073
