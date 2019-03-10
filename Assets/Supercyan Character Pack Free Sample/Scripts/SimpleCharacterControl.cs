@@ -1,6 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
+using System;
+using System.Collections.Generic;
+
+using UnityEngine.XR.iOS;
+using UnityEngine.UI;
+
 public class SimpleCharacterControl : MonoBehaviour {
 
     private enum ControlMode
@@ -33,6 +39,20 @@ public class SimpleCharacterControl : MonoBehaviour {
 
     private bool m_isGrounded;
     private List<Collider> m_collisions = new List<Collider>();
+
+    private bool m_moveBegin;
+    private bool m_moveLeft;
+    private bool m_moveRight;
+    private float horizVel = 0;
+    private int laneNum = 2;
+    private string controlLocked = "n";
+    private bool m_turnLeft;
+    private bool m_turnRight;
+    private float angle = 0;
+
+    //private MyARAnchorManager unityARAnchorManager;
+    //private ARPlaneAnchor unityARAnchor;
+
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -110,29 +130,123 @@ public class SimpleCharacterControl : MonoBehaviour {
 
     private void TankUpdate()
     {
-        float v = Input.GetAxis("Vertical");
-        float h = Input.GetAxis("Horizontal");
+        //float v = Input.GetAxis("Vertical");
+        //float h = Input.GetAxis("Horizontal");
 
-        bool walk = Input.GetKey(KeyCode.LeftShift);
+        //bool walk = Input.GetKey(KeyCode.LeftShift);
 
-        if (v < 0) {
-            if (walk) { v *= m_backwardsWalkScale; }
-            else { v *= m_backwardRunScale; }
-        } else if(walk)
+        //if (v < 0) {
+        //    if (walk) { v *= m_backwardsWalkScale; }
+        //    else { v *= m_backwardRunScale; }
+        //} else if(walk)
+        //{
+        //    v *= m_walkScale;
+        //}
+
+        //m_currentV = Mathf.Lerp(m_currentV, v, Time.deltaTime * m_interpolation);
+        //m_currentH = Mathf.Lerp(m_currentH, h, Time.deltaTime * m_interpolation);
+
+        //transform.position += transform.forward * m_currentV * m_moveSpeed * Time.deltaTime;
+        //transform.Rotate(0, m_currentH * m_turnSpeed * Time.deltaTime, 0);
+
+        //m_animator.SetFloat("MoveSpeed", m_currentV);
+
+        //JumpingAndLanding();
+
+        Debug.Log("2: " + m_moveBegin);
+
+        //float v = Input.GetAxis("Vertical");
+        //float h = Input.GetAxis("Horizontal");
+
+        if (m_moveBegin == true)
         {
-            v *= m_walkScale;
+
+            //v *= m_walkScale;
+            //v *= m_runScale;
+
+            m_currentV = Mathf.Lerp(m_currentV, 0.1f, Time.deltaTime * m_interpolation);
+            //m_currentH = Mathf.Lerp(m_currentH, h, Time.deltaTime * m_interpolation);
+
+            transform.position += transform.forward * m_currentV * m_moveSpeed * Time.deltaTime;
+            //transform.Rotate(0, m_currentH * m_turnSpeed * Time.deltaTime, 0);
+
+            m_animator.SetFloat("MoveSpeed", m_currentV);
+
+            //unityARAnchorManager = new MyARAnchorManager();
+            //unityARAnchorManager.planeAnchorMap.ARPlaneAnchorGameObject
+            //unityPlaneAnchor = new ARPlaneAnchor();
+            //unityPlaneAnchor.center;
+
+            //horizVel = 0;
+            //GetComponent<Rigidbody>().velocity = new Vector3(horizVel, 0, 0.1f);
+        }
+        else
+        {
+            m_animator.SetFloat("MoveSpeed", 0);
+            GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
+            transform.Rotate(0, 0, 0);
         }
 
-        m_currentV = Mathf.Lerp(m_currentV, v, Time.deltaTime * m_interpolation);
-        m_currentH = Mathf.Lerp(m_currentH, h, Time.deltaTime * m_interpolation);
 
-        transform.position += transform.forward * m_currentV * m_moveSpeed * Time.deltaTime;
-        transform.Rotate(0, m_currentH * m_turnSpeed * Time.deltaTime, 0);
+        if ((m_moveLeft == true) && (laneNum > 1) && (controlLocked == "n"))
+        {
+            horizVel = -0.3f;
+            GetComponent<Rigidbody>().velocity = new Vector3(horizVel, 0, 0.1f);
+            //stopSlide();
+            horizVel = 0;
+            laneNum -= 1;
+            controlLocked = "y";
+        }
+        if ((m_moveRight == true) && (laneNum <= 3) && (controlLocked == "n"))
+        {
+            horizVel = 0.3f;
+            GetComponent<Rigidbody>().velocity = new Vector3(horizVel, 0, 0.1f);
+            //stopSlide();
+            horizVel = 0;
+            laneNum += 1;
+            controlLocked = "y";
+        }
+        controlLocked = "n";
 
-        m_animator.SetFloat("MoveSpeed", m_currentV);
+        if (m_turnLeft == true)
+        {
+            //m_currentH = Mathf.Lerp(m_currentH, 0.5f, Time.deltaTime * m_interpolation);
 
-        JumpingAndLanding();
+            transform.Rotate(0, -90, 0);
+            //transform.Rotate(0, 0, 0);
+            m_turnLeft = false;
+            //angle = m_currentH * m_turnSpeed * Time.deltaTime;  
+            //if (angle <= 90)
+            //{
+            //    transform.Rotate(0, -90, 0);
+            //}
+            //else
+            //{
+            //    angle = 0;
+            //    transform.Rotate(0, angle, 0);
+            //}
+        }
+        if (m_turnRight == true)
+        {
+            //m_currentH = Mathf.Lerp(m_currentH, 0.5f, Time.deltaTime * m_interpolation);
+
+            transform.Rotate(0, 90, 0);
+            //transform.Rotate(0, 0, 0);
+            m_turnRight = false;
+
+            //angle = m_currentH * m_turnSpeed * Time.deltaTime;
+            //if (angle <= 90)
+            //{
+            //    transform.Rotate(0, 90, 0);
+            //}
+            //else
+            //{
+            //    angle = 0;
+            //    transform.Rotate(0, angle, 0);
+            //}
+        }
     }
+
 
     private void DirectUpdate()
     {
@@ -167,6 +281,53 @@ public class SimpleCharacterControl : MonoBehaviour {
         }
 
         JumpingAndLanding();
+    }
+
+    public void randomMove()
+    {
+        JumpingAndLanding();
+
+        m_moveBegin = true;
+        Debug.Log("1: " + m_moveBegin);
+
+        m_moveLeft = false;
+        m_moveRight = false;
+    }
+
+    public void randomStop()
+    {
+        m_moveBegin = false;
+    }
+
+    public void randomShiftL()
+    {
+        m_moveLeft = true;
+        m_moveRight = false;
+    }
+
+    public void randomShiftR()
+    {
+        m_moveRight = true;
+        m_moveLeft = false;
+    }
+
+    private void stopSlide()
+    {
+        //yield return new WaitForSeconds(0.1f);
+        horizVel = 0;
+        controlLocked = "n";
+    }
+
+    public void randomTurnL()
+    {
+        m_turnLeft = true;
+        m_turnRight = false;
+    }
+
+    public void randomTurnR()
+    {
+        m_turnRight = true;
+        m_turnLeft = false;
     }
 
     private void JumpingAndLanding()
