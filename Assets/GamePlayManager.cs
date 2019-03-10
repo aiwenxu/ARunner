@@ -14,8 +14,13 @@ public class GamePlayManager : MonoBehaviour
     public GameObject[] roadBlocks;
     public GameObject tempRoadBlock1;
     public GameObject tempRoadBlock2;
+    public GameObject tempRoadBlock3;
 
-    public bool roadBlockPlaced = false;
+    private bool roadBlockPlaced = false;
+    private bool startRunning = false;
+    private bool automaticRoadStarted = false;
+
+    private bool dead = false;
 
     private float roadBlockWidth;
     private Vector3 roadBlockSize;
@@ -69,9 +74,18 @@ public class GamePlayManager : MonoBehaviour
                 tempRoadBlock2.transform.rotation = tempRoadBlock1.transform.rotation;
                 tempRoadBlock2.transform.parent = gamePlaneOrigin.transform;
 
+                tempRoadBlock3.transform.position = tempRoadBlock2.transform.position + tempRoadBlock2.transform.forward * roadBlockWidth;
+                tempRoadBlock3.transform.rotation = tempRoadBlock2.transform.rotation;
+                tempRoadBlock3.transform.parent = gamePlaneOrigin.transform;
+
                 roadBlockPlaced = true;
             }
-
+            if (startRunning && !automaticRoadStarted)
+            {
+                StartCoroutine(AutomaticRoadGenerator());
+                Debug.Log("coroutine started");
+                automaticRoadStarted = true;
+            }
 
         }
     }
@@ -103,7 +117,6 @@ public class GamePlayManager : MonoBehaviour
         return true;
     }
 
-    //TODO: not sure if this works
     private PositionAndIndex ChooseNextPos(Transform currentRoadBlock)
     {
         bool[] positionsOK = { true, true, true };
@@ -152,19 +165,35 @@ public class GamePlayManager : MonoBehaviour
 
     public void PlaceARoadBlock()
     {
-        if (stepCount % 2 == 0)
+        if (stepCount % 3 == 0)
         {
-            PositionAndIndex newPosAndIdx = ChooseNextPos(tempRoadBlock2.transform);
+            PositionAndIndex newPosAndIdx = ChooseNextPos(tempRoadBlock3.transform);
             tempRoadBlock1.transform.localPosition = newPosAndIdx.pos;
-            RotateAccordingToIndexAndOldBlock(tempRoadBlock1.transform, tempRoadBlock2.transform, newPosAndIdx.idx);
+            RotateAccordingToIndexAndOldBlock(tempRoadBlock1.transform, tempRoadBlock3.transform, newPosAndIdx.idx);
         }
-        else
+        else if (stepCount % 3 == 1)
         {
             PositionAndIndex newPosAndIdx = ChooseNextPos(tempRoadBlock1.transform);
             tempRoadBlock2.transform.localPosition = newPosAndIdx.pos;
             RotateAccordingToIndexAndOldBlock(tempRoadBlock2.transform, tempRoadBlock1.transform, newPosAndIdx.idx);
         }
+        else
+        {
+            PositionAndIndex newPosAndIdx = ChooseNextPos(tempRoadBlock2.transform);
+            tempRoadBlock3.transform.localPosition = newPosAndIdx.pos;
+            RotateAccordingToIndexAndOldBlock(tempRoadBlock3.transform, tempRoadBlock2.transform, newPosAndIdx.idx);
+        }
         stepCount++;
+    }
+
+    private IEnumerator AutomaticRoadGenerator()
+    {
+        while (!dead)
+        {
+            PlaceARoadBlock();
+            Debug.Log("new block placed");
+            yield return new WaitForSecondsRealtime(1);
+        }
     }
 
     private void RotateAccordingToIndexAndOldBlock(Transform newBlock, Transform oldBlock, int i)
@@ -183,6 +212,11 @@ public class GamePlayManager : MonoBehaviour
     public void StartGame()
     {
         gameStarted = true;
+    }
+
+    public void StartRunning()
+    {
+        startRunning = true;
     }
 
     public void DebugPosition()

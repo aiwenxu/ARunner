@@ -15,7 +15,7 @@ public class SimpleCharacterControl : MonoBehaviour {
         Direct
     }
 
-    [SerializeField] private float m_moveSpeed = 2;
+    [SerializeField] private float m_moveSpeed = 0.0001f;
     [SerializeField] private float m_turnSpeed = 200;
     [SerializeField] private float m_jumpForce = 4;
     [SerializeField] private Animator m_animator;
@@ -153,7 +153,7 @@ public class SimpleCharacterControl : MonoBehaviour {
 
         //JumpingAndLanding();
 
-        Debug.Log("2: " + m_moveBegin);
+        //Debug.Log("2: " + m_moveBegin);
 
         //float v = Input.GetAxis("Vertical");
         //float h = Input.GetAxis("Horizontal");
@@ -165,12 +165,16 @@ public class SimpleCharacterControl : MonoBehaviour {
             //v *= m_runScale;
 
             m_currentV = Mathf.Lerp(m_currentV, 0.1f, Time.deltaTime * m_interpolation);
+            Debug.Log(m_currentV);
             //m_currentH = Mathf.Lerp(m_currentH, h, Time.deltaTime * m_interpolation);
 
-            transform.position += transform.forward * m_currentV * m_moveSpeed * Time.deltaTime;
+            //transform.position += transform.forward * m_currentV * m_moveSpeed * Time.deltaTime;
+            //transform.position += transform.forward * m_moveSpeed * Time.deltaTime;
+            transform.position += transform.forward * 0.2f * Time.deltaTime;
+
             //transform.Rotate(0, m_currentH * m_turnSpeed * Time.deltaTime, 0);
 
-            m_animator.SetFloat("MoveSpeed", m_currentV);
+            m_animator.SetFloat("MoveSpeed", 0.1f);
 
             //unityARAnchorManager = new MyARAnchorManager();
             //unityARAnchorManager.planeAnchorMap.ARPlaneAnchorGameObject
