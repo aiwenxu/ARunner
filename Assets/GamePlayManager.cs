@@ -10,8 +10,6 @@ public class GamePlayManager : MonoBehaviour
     public GameObject gamePlaneOrigin;
     public GameObject gameCharacter;
     public GameObject[] obstacles;
-    public GameObject[] lifes;
-    public GameObject[] roadBlocks;
     public GameObject tempRoadBlock1;
     public GameObject tempRoadBlock2;
     public GameObject tempRoadBlock3;
@@ -60,7 +58,12 @@ public class GamePlayManager : MonoBehaviour
                 gamePlaneExtent = gamePlane.GetComponent<Collider>().bounds.extents;
                 roadBlockCenterRangeX = gamePlaneExtent.x - roadBlockWidth / 2;
                 roadBlockCenterRangeZ = gamePlaneExtent.z - roadBlockWidth / 2;
+
+                obstacles = GameObject.FindGameObjectsWithTag("obstacle");
+                Debug.Log(obstacles.Length);
+
                 gamePlaneSizeIsInit = true;
+                
             }
 
             if (!roadBlockPlaced)

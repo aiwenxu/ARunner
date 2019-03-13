@@ -188,7 +188,8 @@ public class PlaneGenerator : MonoBehaviour
 
         gamePlaneOrigin.transform.localPosition = new Vector3(selectedPlaneAnchor.center.x, selectedPlaneAnchor.center.y, -selectedPlaneAnchor.center.z);
 
-        gamePlane.transform.localPosition = new Vector3(selectedPlaneAnchor.center.x, selectedPlaneAnchor.center.y, -selectedPlaneAnchor.center.z);
+        gamePlane.transform.localPosition = new Vector3(selectedPlaneAnchor.center.x, selectedPlaneAnchor.center.y - 0.005f, -selectedPlaneAnchor.center.z);
+        Debug.Log(gamePlane.transform.localPosition);
         //gamePlane.transform.localScale = new Vector3(selectedPlaneAnchor.extent.x * 0.1f, gamePlane.transform.localScale.y, selectedPlaneAnchor.extent.z * 0.1f);
         //gamePlane.SetActive(true);
         gamePlane.transform.localScale = new Vector3(selectedPlaneAnchor.extent.x, 0.005f, selectedPlaneAnchor.extent.z);

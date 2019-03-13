@@ -15,4 +15,3 @@ MonoBehaviour:
   resourceGroupName: emojiMarkers
   referenceImages:
   - {fileID: 11400000, guid: ecd148688b707456380805e49d28fbd3, type: 2}
-  - {fileID: 11400000, guid: fb43b8b04f5674dac913a41871a894bd, type: 2}

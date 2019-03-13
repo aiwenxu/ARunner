@@ -12,7 +12,11 @@ public class ImageAnchorPrefabGenerator : MonoBehaviour {
 	[SerializeField]
 	private GameObject prefabToGenerate;
 
+    public GameObject obstaclePrefab;
+
 	private GameObject imageAnchorGO;
+
+    private ARImageAnchor currentAnchor = null;
 
 	// Use this for initialization
 	void Start () {
@@ -24,7 +28,8 @@ public class ImageAnchorPrefabGenerator : MonoBehaviour {
 
 	void AddImageAnchor(ARImageAnchor arImageAnchor)
 	{
-		Debug.LogFormat("image anchor added[{0}] : tracked => {1}", arImageAnchor.identifier, arImageAnchor.isTracked);
+		//Debug.LogFormat("image anchor added[{0}] : tracked => {1}", arImageAnchor.identifier, arImageAnchor.isTracked);
+        currentAnchor = arImageAnchor;
 		if (arImageAnchor.referenceImageName == referenceImage.imageName) {
 			Vector3 position = UnityARMatrixOps.GetPosition (arImageAnchor.transform);
 			Quaternion rotation = UnityARMatrixOps.GetRotation (arImageAnchor.transform);
@@ -35,7 +40,8 @@ public class ImageAnchorPrefabGenerator : MonoBehaviour {
 
 	void UpdateImageAnchor(ARImageAnchor arImageAnchor)
 	{
-		Debug.LogFormat("image anchor updated[{0}] : tracked => {1}", arImageAnchor.identifier, arImageAnchor.isTracked);
+        //Debug.LogFormat("image anchor updated[{0}] : tracked => {1}", arImageAnchor.identifier, arImageAnchor.isTracked);
+        currentAnchor = arImageAnchor;
 		if (arImageAnchor.referenceImageName == referenceImage.imageName) {
             if (arImageAnchor.isTracked)
             {
@@ -56,19 +62,43 @@ public class ImageAnchorPrefabGenerator : MonoBehaviour {
 
 	void RemoveImageAnchor(ARImageAnchor arImageAnchor)
 	{
-		Debug.LogFormat("image anchor removed[{0}] : tracked => {1}", arImageAnchor.identifier, arImageAnchor.isTracked);
+		//Debug.LogFormat("image anchor removed[{0}] : tracked => {1}", arImageAnchor.identifier, arImageAnchor.isTracked);
 		if (imageAnchorGO) {
 			GameObject.Destroy (imageAnchorGO);
 		}
 
 	}
 
-	void OnDestroy()
+    public void PlaceObstacle()
+    {
+        if (currentAnchor != null)
+        {
+            if (currentAnchor.isTracked)
+            {
+                Vector3 position = UnityARMatrixOps.GetPosition(currentAnchor.transform);
+                Quaternion rotation = UnityARMatrixOps.GetRotation(currentAnchor.transform);
+                GameObject newObstacle = Instantiate<GameObject> (obstaclePrefab, position, rotation);
+                newObstacle.tag = "obstacle";
+                Debug.Log(position.ToString("F5"));
+            }
+            else
+            {
+                Debug.Log("current anchor not tracked");
+            }
+        }
+        else
+        {
+            Debug.Log("current anchor null");
+        }
+        Debug.Log("done");
+    }
+
+    void OnDestroy()
 	{
 		UnityARSessionNativeInterface.ARImageAnchorAddedEvent -= AddImageAnchor;
 		UnityARSessionNativeInterface.ARImageAnchorUpdatedEvent -= UpdateImageAnchor;
 		UnityARSessionNativeInterface.ARImageAnchorRemovedEvent -= RemoveImageAnchor;
-
+        
 	}
 
 	// Update is called once per frame
