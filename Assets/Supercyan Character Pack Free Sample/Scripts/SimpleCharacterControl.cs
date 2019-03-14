@@ -160,29 +160,37 @@ public class SimpleCharacterControl : MonoBehaviour {
 
         if (m_moveBegin == true)
         {
+            if ((m_moveLeft == false) && (m_moveRight == false))
+            {
+                //v *= m_walkScale;
+                //v *= m_runScale;
 
-            //v *= m_walkScale;
-            //v *= m_runScale;
+                m_currentV = Mathf.Lerp(m_currentV, 0.1f, Time.deltaTime * m_interpolation);
+                //Debug.Log(m_currentV);
+                //m_currentH = Mathf.Lerp(m_currentH, h, Time.deltaTime * m_interpolation);
 
-            m_currentV = Mathf.Lerp(m_currentV, 0.1f, Time.deltaTime * m_interpolation);
-            Debug.Log(m_currentV);
-            //m_currentH = Mathf.Lerp(m_currentH, h, Time.deltaTime * m_interpolation);
+                //transform.position += transform.forward * m_currentV * m_moveSpeed * Time.deltaTime;
+                //transform.position += transform.forward * m_moveSpeed * Time.deltaTime;
+                transform.position += transform.forward * 0.2f * Time.deltaTime;
 
-            //transform.position += transform.forward * m_currentV * m_moveSpeed * Time.deltaTime;
-            //transform.position += transform.forward * m_moveSpeed * Time.deltaTime;
-            transform.position += transform.forward * 0.2f * Time.deltaTime;
+                //transform.Rotate(0, m_currentH * m_turnSpeed * Time.deltaTime, 0);
 
-            //transform.Rotate(0, m_currentH * m_turnSpeed * Time.deltaTime, 0);
+                m_animator.SetFloat("MoveSpeed", 0.1f);
 
-            m_animator.SetFloat("MoveSpeed", 0.1f);
+                //unityARAnchorManager = new MyARAnchorManager();
+                //unityARAnchorManager.planeAnchorMap.ARPlaneAnchorGameObject
+                //unityPlaneAnchor = new ARPlaneAnchor();
+                //unityPlaneAnchor.center;
 
-            //unityARAnchorManager = new MyARAnchorManager();
-            //unityARAnchorManager.planeAnchorMap.ARPlaneAnchorGameObject
-            //unityPlaneAnchor = new ARPlaneAnchor();
-            //unityPlaneAnchor.center;
+                //horizVel = 0;
+                GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0.1f);
+            }
 
-            //horizVel = 0;
-            //GetComponent<Rigidbody>().velocity = new Vector3(horizVel, 0, 0.1f);
+            //if ((m_moveLeft == false) || (m_moveRight == false))
+            //{
+            //    horizVel = 0;
+            //    GetComponent<Rigidbody>().velocity = new Vector3(horizVel, 0, 0.1f);
+            //}
         }
         else
         {
@@ -192,25 +200,27 @@ public class SimpleCharacterControl : MonoBehaviour {
         }
 
 
-        if ((m_moveLeft == true) && (laneNum > 1) && (controlLocked == "n"))
+
+        if ((m_moveLeft == true) && (laneNum >= 1) && (controlLocked == "n"))
         {
-            horizVel = -0.3f;
+            horizVel = -0.2f;
             GetComponent<Rigidbody>().velocity = new Vector3(horizVel, 0, 0.1f);
             //stopSlide();
-            horizVel = 0;
+            //horizVel = 0;
             laneNum -= 1;
             controlLocked = "y";
         }
         if ((m_moveRight == true) && (laneNum <= 3) && (controlLocked == "n"))
         {
-            horizVel = 0.3f;
+            horizVel = 0.2f;
             GetComponent<Rigidbody>().velocity = new Vector3(horizVel, 0, 0.1f);
             //stopSlide();
-            horizVel = 0;
+            //horizVel = 0;
             laneNum += 1;
             controlLocked = "y";
         }
-        controlLocked = "n";
+
+
 
         if (m_turnLeft == true)
         {
@@ -250,6 +260,7 @@ public class SimpleCharacterControl : MonoBehaviour {
             //}
         }
     }
+
 
 
     private void DirectUpdate()
@@ -296,6 +307,7 @@ public class SimpleCharacterControl : MonoBehaviour {
 
         m_moveLeft = false;
         m_moveRight = false;
+        horizVel = 0;
     }
 
     public void randomStop()
@@ -305,12 +317,14 @@ public class SimpleCharacterControl : MonoBehaviour {
 
     public void randomShiftL()
     {
+        controlLocked = "n";
         m_moveLeft = true;
         m_moveRight = false;
     }
 
     public void randomShiftR()
     {
+        controlLocked = "n";
         m_moveRight = true;
         m_moveLeft = false;
     }
