@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.UI;
 
 public class GamePlayManager : MonoBehaviour
 {
+    // This becomes true once "start" button is pressed
     private bool gameStarted = false;
+
     public GameObject gamePlane;
     public GameObject gamePlaneOrigin;
     public GameObject gameCharacter;
@@ -14,16 +17,31 @@ public class GamePlayManager : MonoBehaviour
     public GameObject tempRoadBlock2;
     public GameObject tempRoadBlock3;
 
+    public Text debugText;
+
+    public Text pointsText;
+
     private bool roadBlockPlaced = false;
+
+    // This becomes true once "run" button is pressed
     private bool startRunning = false;
+
+    // This becomes true once the coroutine of generating the road starts.
     private bool automaticRoadStarted = false;
 
     private bool dead = false;
 
+    private int basePoints = 100;
+    private int timeNotOnRoad = 0;
+    private int numObstaclesRunInto = 0;
+    private int totalPoints = 0; 
+
     private float roadBlockWidth;
     private Vector3 roadBlockSize;
 
+    // When this is true, game plane size init and obstacles in game are found.
     private bool gamePlaneSizeIsInit;
+
     private Vector3 gamePlaneExtent;
 
     private float roadBlockCenterRangeX;
@@ -31,9 +49,11 @@ public class GamePlayManager : MonoBehaviour
 
     private System.Random rnd;
 
-    private int stepCount = 0;
+    private int stepCount = 0; // also used in computing total points
 
     public GameObject debugVisBall;
+
+    SimpleCharacterControl controlScript;
 
     // Start is called before the first frame update
     void Start()
@@ -42,6 +62,7 @@ public class GamePlayManager : MonoBehaviour
         roadBlockSize = tempRoadBlock1.GetComponent<Collider>().bounds.size;
 
         rnd = new System.Random(39538479);
+
     }
 
     // Update is called once per frame
@@ -59,23 +80,28 @@ public class GamePlayManager : MonoBehaviour
                 roadBlockCenterRangeX = gamePlaneExtent.x - roadBlockWidth / 2;
                 roadBlockCenterRangeZ = gamePlaneExtent.z - roadBlockWidth / 2;
 
+                // I put finding obstacles here too.
+                // In fact, it might not be useful. Could be removed. But I'll keep them here for now...
                 obstacles = GameObject.FindGameObjectsWithTag("obstacle");
                 Debug.Log(obstacles.Length);
 
                 gamePlaneSizeIsInit = true;
-                
+
+                controlScript = gameCharacter.GetComponent<SimpleCharacterControl>();
+
+
             }
 
             if (!roadBlockPlaced)
             {
-                tempRoadBlock1.transform.parent = gamePlaneOrigin.transform;
-                tempRoadBlock1.transform.localPosition = gameCharacter.transform.localPosition;
-                //tempRoadBlock.transform.localPosition = new Vector3(gameCharacter.transform.localPosition.x, gameCharacter.transform.localPosition.y, gameCharacter.transform.localPosition.z);
-                tempRoadBlock1.transform.localRotation = gameCharacter.transform.localRotation;
-
-                tempRoadBlock2.transform.position = tempRoadBlock1.transform.position + tempRoadBlock1.transform.forward * roadBlockWidth;
-                tempRoadBlock2.transform.rotation = tempRoadBlock1.transform.rotation;
                 tempRoadBlock2.transform.parent = gamePlaneOrigin.transform;
+                tempRoadBlock2.transform.localPosition = gameCharacter.transform.localPosition;
+                //tempRoadBlock.transform.localPosition = new Vector3(gameCharacter.transform.localPosition.x, gameCharacter.transform.localPosition.y, gameCharacter.transform.localPosition.z);
+                tempRoadBlock2.transform.localRotation = gameCharacter.transform.localRotation;
+
+                tempRoadBlock1.transform.position = tempRoadBlock2.transform.position - tempRoadBlock2.transform.forward * roadBlockWidth;
+                tempRoadBlock1.transform.rotation = tempRoadBlock2.transform.rotation;
+                tempRoadBlock1.transform.parent = gamePlaneOrigin.transform;
 
                 tempRoadBlock3.transform.position = tempRoadBlock2.transform.position + tempRoadBlock2.transform.forward * roadBlockWidth;
                 tempRoadBlock3.transform.rotation = tempRoadBlock2.transform.rotation;
@@ -90,11 +116,30 @@ public class GamePlayManager : MonoBehaviour
                 automaticRoadStarted = true;
             }
 
+            if (startRunning && !dead)
+            {
+                totalPoints = basePoints + stepCount * 2 - timeNotOnRoad * 3 - 10 * numObstaclesRunInto;
+                pointsText.text = totalPoints.ToString();
+                // TODO: disable stuff when dead
+                //if (totalPoints < 0)
+                //{
+                //    dead = true;
+                //}
+
+                if (controlScript.enterTrigger == true)
+                {
+                    numObstaclesRunInto++;
+                    Debug.Log(numObstaclesRunInto);
+                    controlScript.enterTrigger = false;
+                }
+            }
+
+
         }
     }
 
     // Assume the road block is a child of gamePlaneOrigin.
-    // TODO: could be removed
+    // could be removed, but I don't care...
     private bool IsRoadBlockInPlane(GameObject roadBlock)
     {
         if (Math.Abs(roadBlock.transform.localPosition.x) > roadBlockCenterRangeX) {
@@ -137,15 +182,10 @@ public class GamePlayManager : MonoBehaviour
             positionsOK[i] = IsPosInPlane(localPositions[i]);
         }
 
-        Debug.Log(positionsOK[0]);
-        Debug.Log(positionsOK[1]);
-        Debug.Log(positionsOK[2]);
 
         int choice = RandomChoose(positionsOK);
 
         PositionAndIndex posAndIdx = new PositionAndIndex(choice, localPositions[choice]);
-
-        Debug.Log(posAndIdx.idx);
 
         return posAndIdx;
     }
@@ -157,7 +197,6 @@ public class GamePlayManager : MonoBehaviour
         {
             index = rnd.Next(0, 3);
         }
-        Debug.Log("outofloop");
         return index;
     }
 
@@ -189,12 +228,24 @@ public class GamePlayManager : MonoBehaviour
         stepCount++;
     }
 
+    // Generate road and check whether character on road. Points are deducted here.
     private IEnumerator AutomaticRoadGenerator()
     {
         while (!dead)
         {
             PlaceARoadBlock();
-            Debug.Log("new block placed");
+            //if (!IsCharacterOnRoad())
+            //{
+            //    debugText.text = "Not on road";
+            //}
+            //else
+            //{
+            //    debugText.text = "On road";
+            //}
+            if (!IsCharacterOnRoad())
+            {
+                timeNotOnRoad++;
+            }
             yield return new WaitForSecondsRealtime(1);
         }
     }
@@ -211,6 +262,25 @@ public class GamePlayManager : MonoBehaviour
             newBlock.Rotate(0, -90, 0, Space.Self);
         }
     }
+
+    public bool IsCharacterOnRoad()
+    {
+        Vector3 characterPos = gameCharacter.transform.localPosition;
+        //Debug.Log(roadBlockWidth);
+        //Debug.Log(characterPos.ToString("F5"));
+        Vector3[] roadBlockPos = { tempRoadBlock1.transform.localPosition, tempRoadBlock2.transform.localPosition, tempRoadBlock3.transform.localPosition };
+        for (int i = 0; i < 3; i++)
+        {
+            //Debug.Log(roadBlockPos[i].ToString("F5"));
+            if (Math.Abs(characterPos.x - roadBlockPos[i].x) < roadBlockWidth / 2 && Math.Abs(characterPos.z - roadBlockPos[i].z) < roadBlockWidth / 2)
+            {
+                //Debug.Log("on road " + i.ToString());
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public void StartGame()
     {

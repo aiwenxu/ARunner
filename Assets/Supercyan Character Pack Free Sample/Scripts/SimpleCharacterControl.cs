@@ -50,9 +50,27 @@ public class SimpleCharacterControl : MonoBehaviour {
     private bool m_turnRight;
     private float angle = 0;
 
+    public bool enterTrigger = false;
     //private MyARAnchorManager unityARAnchorManager;
     //private ARPlaneAnchor unityARAnchor;
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "obstacle")
+        {
+            Debug.Log("trigger enter");
+            enterTrigger = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.tag == "obstacle")
+        {
+            Debug.Log("trigger exit");
+            enterTrigger = false;
+        }
+    }
 
     private void OnCollisionEnter(Collision collision)
     {
