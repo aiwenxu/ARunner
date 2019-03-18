@@ -121,10 +121,10 @@ public class GamePlayManager : MonoBehaviour
                 totalPoints = basePoints + stepCount * 2 - timeNotOnRoad * 3 - 10 * numObstaclesRunInto;
                 pointsText.text = totalPoints.ToString();
                 // TODO: disable stuff when dead
-                //if (totalPoints < 0)
-                //{
-                //    dead = true;
-                //}
+                if (totalPoints < 0)
+                {
+                    dead = true;
+                }
 
                 if (controlScript.enterTrigger == true)
                 {
@@ -132,6 +132,11 @@ public class GamePlayManager : MonoBehaviour
                     Debug.Log(numObstaclesRunInto);
                     controlScript.enterTrigger = false;
                 }
+            }
+
+            if (dead)
+            {
+
             }
 
 
