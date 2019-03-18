@@ -176,7 +176,7 @@ public class SimpleCharacterControl : MonoBehaviour {
         //float v = Input.GetAxis("Vertical");
         //float h = Input.GetAxis("Horizontal");
 
-        if (m_moveBegin == true)
+        if (m_moveBegin)
         {
             if ((m_moveLeft == false) && (m_moveRight == false))
             {
@@ -189,11 +189,11 @@ public class SimpleCharacterControl : MonoBehaviour {
 
                 //transform.position += transform.forward * m_currentV * m_moveSpeed * Time.deltaTime;
                 //transform.position += transform.forward * m_moveSpeed * Time.deltaTime;
-                transform.position += transform.forward * 0.2f * Time.deltaTime;
+                transform.position += transform.forward.normalized * 0.15f * Time.deltaTime;
 
                 //transform.Rotate(0, m_currentH * m_turnSpeed * Time.deltaTime, 0);
 
-                m_animator.SetFloat("MoveSpeed", 0.1f);
+                m_animator.SetFloat("MoveSpeed", 0.5f);
 
                 //unityARAnchorManager = new MyARAnchorManager();
                 //unityARAnchorManager.planeAnchorMap.ARPlaneAnchorGameObject
@@ -240,12 +240,11 @@ public class SimpleCharacterControl : MonoBehaviour {
 
 
 
-        if (m_turnLeft == true)
+        if (m_turnLeft)
         {
             //m_currentH = Mathf.Lerp(m_currentH, 0.5f, Time.deltaTime * m_interpolation);
 
             transform.Rotate(0, -90, 0);
-            //transform.Rotate(0, 0, 0);
             m_turnLeft = false;
             //angle = m_currentH * m_turnSpeed * Time.deltaTime;  
             //if (angle <= 90)
@@ -258,7 +257,7 @@ public class SimpleCharacterControl : MonoBehaviour {
             //    transform.Rotate(0, angle, 0);
             //}
         }
-        if (m_turnRight == true)
+        if (m_turnRight)
         {
             //m_currentH = Mathf.Lerp(m_currentH, 0.5f, Time.deltaTime * m_interpolation);
 
