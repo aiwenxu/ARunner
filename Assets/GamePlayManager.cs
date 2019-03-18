@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;  
 
 public class GamePlayManager : MonoBehaviour
 {
@@ -29,9 +30,9 @@ public class GamePlayManager : MonoBehaviour
     // This becomes true once the coroutine of generating the road starts.
     private bool automaticRoadStarted = false;
 
-    private bool dead = false;
+    public bool dead = false;
 
-    private int basePoints = 100;
+    private int basePoints = 10;
     private int timeNotOnRoad = 0;
     private int numObstaclesRunInto = 0;
     private int totalPoints = 0; 
@@ -136,7 +137,7 @@ public class GamePlayManager : MonoBehaviour
 
             if (dead)
             {
-
+                SceneManager.LoadScene(1);
             }
 
 

@@ -2246,7 +2246,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 100
+  m_Text: 10
 --- !u!222 &875942083
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3233,6 +3233,7 @@ MonoBehaviour:
   tempRoadBlock3: {fileID: 732237956}
   debugText: {fileID: 2099546176}
   pointsText: {fileID: 875942082}
+  dead: 0
   debugVisBall: {fileID: 7340288056208486970, guid: 4488583a207824cca8d86a52259d9f0d,
     type: 3}
 --- !u!4 &1698565026
