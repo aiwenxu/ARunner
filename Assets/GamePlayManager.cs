@@ -32,7 +32,7 @@ public class GamePlayManager : MonoBehaviour
 
     public bool dead = false;
 
-    private int basePoints = 10;
+    private int basePoints = 20;
     private int timeNotOnRoad = 0;
     private int numObstaclesRunInto = 0;
     private int totalPoints = 0; 
@@ -122,7 +122,7 @@ public class GamePlayManager : MonoBehaviour
                 totalPoints = basePoints + stepCount * 2 - timeNotOnRoad * 3 - 10 * numObstaclesRunInto;
                 pointsText.text = totalPoints.ToString();
                 // TODO: disable stuff when dead
-                if (totalPoints < 0)
+                if (totalPoints <=0)
                 {
                     dead = true;
                 }
